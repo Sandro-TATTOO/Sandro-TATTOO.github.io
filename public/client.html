@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         video {
             position: fixed;
@@ -15,12 +16,10 @@
             z-index: 1;
         }
 
-
-        
         #chat-container {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            left: 20px; /* Changed from right to left */
             width: 300px;
             max-width: 90%;
             height: 40vh;
@@ -30,20 +29,21 @@
             z-index: 2;
             overflow: hidden;
             transition: transform 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
+            backdrop-filter: blur(2px);
 
+
+
+        }
 
         @media (max-width: 768px) {
             #chat-container {
                 width: 90%;
                 height: 35vh;
-                right: 5%;
+                left: 5%; /* Changed from right to left */
                 bottom: 10px;
             }
+
         }
-
-
 
         #chat-messages {
             position: absolute;
@@ -55,24 +55,19 @@
             padding: 15px;
             color: white;
             background: transparent;
-        }
 
+
+        }
 
         #chat-messages div {
             background: transparent;
             padding: 5px;
             margin-bottom: 5px;
             word-break: break-word;
-        }
+            border-radius: 3px;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 
 
-
-
-        #chat-messages div {
-            background: transparent;
-            padding: 5px;
-            margin-bottom: 5px;
-            word-break: break-word;
         }
 
         #chat-input {
@@ -80,7 +75,7 @@
             bottom: 0;
             width: 100%;
             padding: 10px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.1);
             border: none;
             border-radius: 5px;
         }
@@ -93,11 +88,6 @@
             border-radius: 3px;
             color: white;
         }
-
-
-
-
-
 
         #send-button {
             background: #007bff;
@@ -113,21 +103,71 @@
         #send-button:hover {
             background: #0056b3;
         }
-    </style>
 
+        #chat-toggle-btn {
+            background: rgba(4, 4, 4, 0.7);
+            border: none;
+            border-radius: 3px;
+            padding: 8px 15px;
+            margin-left: 5px;
+            cursor: pointer;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        #chat-toggle-btn:hover {
+            background: rgba(7, 7, 7, 0.9);
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3;
+            display: flex;
+            gap: 10px;
+        }
+
+        .control-btn {
+            background: rgba(0, 0, 0, 0.7);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: scale(1.1);
+        }
+    </style>
 </head>
 <body>
     <h1>Client</h1>
+    <div class="controls">
+        <button id="camera-toggle" class="control-btn" title="Ligar/Desligar Câmera">
+            <i class="fas fa-video"></i>
+        </button>
+        <button id="chat-toggle" class="control-btn" title="Mostrar/Esconder Chat">
+            <i class="fas fa-comments"></i>
+        </button>
+    </div>
     <video id="webcam" autoplay></video>
-    
+
     <div id="chat-container">
         <div id="chat-messages"></div>
         <div id="chat-input">
             <input type="text" id="message-input" placeholder="Digite sua mensagem...">
             <button id="send-button">Enviar</button>
+
         </div>
     </div>
-
 
     <script>
         let nickname = '';
@@ -143,7 +183,6 @@
             console.log('Conectado ao servidor WebSocket');
         };
 
-        
         // Chat elements
         const chatMessages = document.getElementById('chat-messages');
         const messageInput = document.getElementById('message-input');
@@ -162,7 +201,6 @@
             }
         });
 
-        
         // Handle incoming messages
         ws.onmessage = (event) => {
             if (event.data instanceof Blob) {
@@ -172,20 +210,16 @@
             
             try {
                 const data = JSON.parse(event.data);
-                    if (data.type === 'message') {
-                        const messageElement = document.createElement('div');
-                        messageElement.innerHTML = `<strong>${data.nickname}:</strong> ${data.content}`;
-                        chatMessages.appendChild(messageElement);
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-
-                    }
-
+                if (data.type === 'message') {
+                    const messageElement = document.createElement('div');
+                    messageElement.innerHTML = `<strong>${data.nickname}:</strong> ${data.content}`;
+                    chatMessages.appendChild(messageElement);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
             } catch (error) {
                 console.error('Erro ao processar mensagem:', error);
             }
         };
-
-
 
         // Acessar a webcam
         navigator.mediaDevices.getUserMedia({ video: true })
@@ -215,15 +249,35 @@
                     };
                     reader.readAsDataURL(blob);
                 }, 'image/jpeg', 0.8);
-
-
-
             }, 100); // Envia frames a cada 100ms
         }
 
-        ws.onopen = () => {
-            console.log('Conectado ao servidor WebSocket');
-        };
+        // Funções para controle da interface
+        const cameraToggle = document.getElementById('camera-toggle');
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatContainer = document.getElementById('chat-container');
+        const chatToggleBtn = document.getElementById('chat-toggle-btn');
+
+        let isCameraOn = true;
+        let isChatVisible = true;
+
+        cameraToggle.addEventListener('click', () => {
+            isCameraOn = !isCameraOn;
+            video.style.display = isCameraOn ? 'block' : 'none';
+            cameraToggle.querySelector('i').classList.toggle('fa-video-slash', !isCameraOn);
+        });
+
+        chatToggle.addEventListener('click', () => {
+            isChatVisible = !isChatVisible;
+            chatContainer.style.display = isChatVisible ? 'block' : 'none';
+            chatToggle.querySelector('i').classList.toggle('fa-comment-slash', !isChatVisible);
+        });
+
+        chatToggleBtn.addEventListener('click', () => {
+            isChatVisible = !isChatVisible;
+            chatContainer.style.display = isChatVisible ? 'block' : 'none';
+            chatToggleBtn.querySelector('i').classList.toggle('fa-comment-slash', !isChatVisible);
+        });
 
         ws.onerror = (error) => {
             console.error('Erro na conexão WebSocket:', error);

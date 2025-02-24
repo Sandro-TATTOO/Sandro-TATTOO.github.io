@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instruções SSL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .steps {
+            background: #f4f4f4;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-top: 1rem;
+        }
+        .step {
+            margin: 1rem 0;
+        }
+        .important {
+            color: #d9534f;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Instruções para Aceitar o Certificado SSL</h1>
+    <div class="steps">
+        <div class="step">
+            <p class="important">Passo 1:</p>
+            <p>Quando acessar o site, você verá uma mensagem de aviso de segurança.</p>
+        </div>
+        <div class="step">
+            <p class="important">Passo 2:</p>
+            <p>Clique em "Avançado" (geralmente no canto inferior esquerdo da página).</p>
+        </div>
+        <div class="step">
+            <p class="important">Passo 3:</p>
+            <p>Clique em "Continuar para localhost (não seguro)".</p>
+        </div>
+        <div class="step">
+            <p class="important">Nota:</p>
+            <p>Este aviso aparece porque estamos usando um certificado autoassinado para desenvolvimento. Isso é normal e seguro para uso local.</p>
+        </div>
+    </div>
+</body>
+</html>
